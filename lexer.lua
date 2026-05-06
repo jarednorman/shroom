@@ -34,8 +34,14 @@ function Lexer:advance()
 end
 
 function Lexer:skip_whitespace()
-  while not self:at_end() and self:peek():match("%s") do
-    self:advance()
+  while not self:at_end() do
+    local c = self:peek()
+
+    if c == " " or c == "\t" or c == "\r" then
+      self:advance()
+    else
+      break
+    end
   end
 end
 
@@ -84,6 +90,11 @@ function Lexer:next_token()
   end
 
   local c = self:peek()
+
+  if c == "\n" then
+    self:advance()
+    return Tokens.new(Tokens.types.NEWLINE, nil, line, col)
+  end
 
   if c:match("%d") then
     return self:read_int()

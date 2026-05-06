@@ -37,18 +37,42 @@ function Parser:expect(type)
                         type, t.type, t.line, t.col))
 end
 
+function Parser:skip_newlines()
+  while self:check(Tokens.types.NEWLINE) do
+    self:advance()
+  end
+end
+
 function Parser:parse_program()
-  local statement = self:parse_statement()
-  self:expect(Tokens.types.EOF)
-  return statement
+  local statements = {}
+
+  self:skip_newlines() -- Allow leading blank lines.
+
+  while not self:check(Tokens.types.EOF) do
+    local statement = self:parse_statement()
+    table.insert(statements, statement)
+
+    if self:check(Tokens.types.EOF) then break end
+
+    if not self:check(Tokens.types.NEWLINE) then
+      local t = self:peek()
+      error(string.format("expected newline or end of file after statement, got %s at line %d, col %d",
+                          t.type, t.line, t.col))
+    end
+
+    self:skip_newlines()
+  end
+
+  return Ast.Program(statements, 1, 1)
 end
 
 function Parser:parse_statement()
   if self:check(Tokens.types.LET) then
     return self:parse_let()
   end
-  -- Could also be a bare expression, but we'll add that later.
-  error("expected a statement")
+
+  error(string.format("unexpected token %s at line %d, col %d",
+                      self:peek().type, self:peek().line, self:peek().col))
 end
 
 function Parser:parse_let()
@@ -56,8 +80,10 @@ function Parser:parse_let()
   local name_token = self:expect(Tokens.types.IDENT)
 
   self:expect(Tokens.types.EQ)
+  self:skip_newlines()
 
   local value = self:parse_expression()
+
   return Ast.LetBinding(name_token.value, value, let_token.line, let_token.col)
 end
 

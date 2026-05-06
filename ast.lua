@@ -5,6 +5,7 @@ M.tags = {
   BinOp = "BinOp",
   Ident = "Ident",
   LetBinding = "LetBinding",
+  Program = "Program",
 }
 
 function M.IntLit(value, line, col)
@@ -41,6 +42,15 @@ function M.LetBinding(name, value, line, col)
     tag = M.tags.LetBinding,
     name = name,
     value = value,
+    line = line,
+    col = col,
+  }
+end
+
+function M.Program(statements, line, col)
+  return {
+    tag = M.tags.Program,
+    statements = statements,
     line = line,
     col = col,
   }

@@ -15,6 +15,15 @@ local emitters = {
   ["LetBinding"] = function(node)
     return "local " .. node.name .. " = " .. emit(node.value)
   end,
+  ["Program"] = function(node)
+    local lines = {}
+
+    for _, statement in ipairs(node.statements) do
+      table.insert(lines, emit(statement))
+    end
+
+    return table.concat(lines, "\n")
+  end
 }
 
 emit = function(node)

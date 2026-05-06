@@ -52,7 +52,7 @@ M.types = {
   -- SEMICOLON = "SEMICOLON",
 
   -- Special
-  -- NEWLINE = "NEWLINE"
+  NEWLINE = "NEWLINE",
   EOF = "EOF"
 }
 
