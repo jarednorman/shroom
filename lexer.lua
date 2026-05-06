@@ -1,67 +1,80 @@
-local M = {}
+local Tokens = require("tokens")
 
-M.types = {
-  -- Literals
-  -- INT = "INT",
-  -- FLOAT = "FLOAT",
-  -- STRING = "STRING",
-  -- IDENT = "IDENT",
-  -- TYPE_VAR = "TYPE_VAR",
+local Lexer = {}
+Lexer.__index = Lexer
 
-  -- Keywords
-  -- LET = "LET",
-  -- IF = "IF",
-  -- ELSE = "ELSE",
-  -- MATCH = "MATCH",
-  -- TYPE = "TYPE",
-  -- TRUE = "TRUE",
-  -- FALSE = "FALSE",
-  -- AND = "AND",
-  -- OR = "OR",
-  -- NOT = "NOT",
-
-  -- Operators
-  -- PLUS = "PLUS",
-  -- MINUS = "MINUS",
-  -- STAR = "STAR",
-  -- SLASH = "SLASH",
-  -- PERCENT = "PERCENT",
-  -- PLUS_DOT = "PLUS_DOT",
-  -- MINUS_DOT = "MINUS_DOT",
-  -- STAR_DOT = "STAR_DOT",
-  -- SLASH_DOT = "SLASH_DOT",
-  -- EQ_EQ = "EQ_EQ",
-  -- BANG_EQ = "BANG_EQ",
-  -- LT = "LT",
-  -- LT_EQ = "LT_EQ",
-  -- GT = "GT",
-  -- GT_EQ = "GT_EQ",
-  -- EQ = "EQ",
-  -- FAT_ARROW = "FAT_ARROW",
-  -- THIN_ARROW = "THIN_ARROW",
-
-  -- Delimiters
-  -- LPAREN = "LPAREN",
-  -- RPAREN = "RPAREN",
-  -- LBRACE = "LBRACE",
-  -- RBRACE = "RBRACE",
-  -- LBRACKET = "LBRACKET",
-  -- RBRACKET = "RBRACKET",
-  -- COMMA = "COMMA",
-  -- COLON = "COLON",
-  -- SEMICOLON = "SEMICOLON",
-
-  -- Special
-  -- NEWLINE = "NEWLINE"
-}
-
-function M.new(type, value, line, col)
-  return {
-    type = type,
-    value = value,
-    line = line,
-    col = col
-  }
+function Lexer.new(source)
+  return setmetatable({
+    source = source,
+    pos = 1,
+    line = 1,
+    col = 1,
+  }, Lexer)
 end
 
-return M
+function Lexer:at_end()
+  return self.pos > #self.source
+end
+
+function Lexer:peek()
+  if self:at_end() then return nil end
+  return self.source:sub(self.pos, self.pos)
+end
+
+function Lexer:advance()
+  local c = self:peek()
+  self.pos = self.pos + 1
+  if c == "\n" then
+    self.line = self.line + 1
+    self.col = 1
+  else
+    self.col = self.col + 1
+  end
+  return c
+end
+
+function Lexer:skip_whitespace()
+  while not self:at_end() and self:peek():match("%s") do
+    self:advance()
+  end
+end
+
+function Lexer:read_int()
+  local start_line, start_col = self.line, self.col
+  local digits = {}
+
+  while not self:at_end() and self:peek():match("%d") do
+    table.insert(digits, self:advance())
+  end
+
+  local value = tonumber(table.concat(digits))
+  return Tokens.new(Tokens.types.INT, value, start_line, start_col)
+end
+
+function Lexer:next_token()
+  self:skip_whitespace()
+
+  if self:at_end() then
+    return Tokens.new(Tokens.types.EOF, nil, self.line, self.col)
+  end
+
+  local c = self:peek()
+  if c:match("%d") then
+    return self:read_int()
+  end
+
+  error(string.format("unexpected character '%s' at line %d, col %d",
+                       c, self.line, self.col))
+end
+
+function Lexer:tokenize()
+  local tokens = {}
+  while true do
+    local tok = self:next_token()
+    table.insert(tokens, tok)
+    if tok.type == Tokens.types.EOF then break end
+  end
+  return tokens
+end
+
+return Lexer
