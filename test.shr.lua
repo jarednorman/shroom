@@ -1,3 +1,3 @@
 local x = ((1 + 2) + 3)
-local y = (2 + 3)
-local z = ((x + 1) + y)
+local y = (2 + (3 * foo))
+local z = ((x * 1) * y)

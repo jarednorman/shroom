@@ -105,6 +105,11 @@ function Lexer:next_token()
     return Tokens.new(Tokens.types.PLUS, nil, self.line, self.col - 1)
   end
 
+  if c == "*" then
+    self:advance()
+    return Tokens.new(Tokens.types.STAR, nil, self.line, self.col - 1)
+  end
+
   if c == "=" then
     self:advance()
     return Tokens.new(Tokens.types.EQ, nil, self.line, self.col - 1)

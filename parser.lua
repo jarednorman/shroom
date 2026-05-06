@@ -87,14 +87,33 @@ function Parser:parse_let()
   return Ast.LetBinding(name_token.value, value, let_token.line, let_token.col)
 end
 
-function Parser:parse_expression()
-  -- Currently, we only support addition.
+local PRECEDENCE = {
+  [Tokens.types.PLUS]  = 10,
+  [Tokens.types.STAR]  = 20,
+}
+
+local function precedence_of(token)
+  return PRECEDENCE[token.type] or 0
+end
+
+function Parser:parse_expression(min_precedence)
+  min_precedence = min_precedence or 0
+
   local left = self:parse_primary()
 
-  while self:check(Tokens.types.PLUS) do
-    local op_token = self:advance()
-    local right = self:parse_primary()
-    left = Ast.BinOp("+", left, right, op_token.line, op_token.col)
+  while true do
+    local token = self:peek()
+    local precedence = precedence_of(token)
+
+    -- Here, a precedence of zero means this is not an operator that can
+    -- continue the expression.
+    if precedence < min_precedence or precedence == 0 then break end
+
+    self:advance()
+
+    local right = self:parse_expression(precedence + 1)
+
+    left = Ast.BinOp(Tokens.operators[token.type], left, right, token.line, token.col)
   end
 
   return left
