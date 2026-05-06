@@ -51,6 +51,31 @@ function Lexer:read_int()
   return Tokens.new(Tokens.types.INT, value, start_line, start_col)
 end
 
+local KEYWORDS = {
+  ["let"] = Tokens.types.LET,
+  -- FIXME: Add more keywords.
+}
+
+function Lexer:read_ident_or_keyword()
+  local start_line, start_col = self.line, self.col
+  local chars = {}
+
+  table.insert(chars, self:advance())
+
+  while not self:at_end() and self:peek():match("[%w_]") do
+    table.insert(chars, self:advance())
+  end
+
+  local text = table.concat(chars)
+  local keyword = KEYWORDS[text]
+
+  if keyword then
+    return Tokens.new(keyword, nil, start_line, start_col)
+  else
+    return Tokens.new(Tokens.types.IDENT, text, start_line, start_col)
+  end
+end
+
 function Lexer:next_token()
   self:skip_whitespace()
 
@@ -59,8 +84,23 @@ function Lexer:next_token()
   end
 
   local c = self:peek()
+
   if c:match("%d") then
     return self:read_int()
+  end
+
+  if c == "+" then
+    self:advance()
+    return Tokens.new(Tokens.types.PLUS, nil, self.line, self.col - 1)
+  end
+
+  if c == "=" then
+    self:advance()
+    return Tokens.new(Tokens.types.EQ, nil, self.line, self.col - 1)
+  end
+
+  if c:match("[%a_]") then
+    return self:read_ident_or_keyword()
   end
 
   error(string.format("unexpected character '%s' at line %d, col %d",

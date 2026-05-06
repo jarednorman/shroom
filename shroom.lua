@@ -17,3 +17,11 @@ run("42")
 run("  123   456  ")
 run("")
 run("1\n2")
+run("let")
+run("let x")
+run("let x = 1")
+run("let x = 1 + 2")
+run("letx")        -- should be a single IDENT, not LET + IDENT
+run("let1")        -- should be a single IDENT (identifiers can contain digits after first char)
+run("foo_bar")     -- underscores work
+run("_x")          -- leading underscore works

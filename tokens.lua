@@ -5,11 +5,11 @@ M.types = {
   INT = "INT",
   -- FLOAT = "FLOAT",
   -- STRING = "STRING",
-  -- IDENT = "IDENT",
+  IDENT = "IDENT",
   -- TYPE_VAR = "TYPE_VAR",
 
   -- Keywords
-  -- LET = "LET",
+  LET = "LET",
   -- IF = "IF",
   -- ELSE = "ELSE",
   -- MATCH = "MATCH",
@@ -21,7 +21,7 @@ M.types = {
   -- NOT = "NOT",
 
   -- Operators
-  -- PLUS = "PLUS",
+  PLUS = "PLUS",
   -- MINUS = "MINUS",
   -- STAR = "STAR",
   -- SLASH = "SLASH",
@@ -36,7 +36,7 @@ M.types = {
   -- LT_EQ = "LT_EQ",
   -- GT = "GT",
   -- GT_EQ = "GT_EQ",
-  -- EQ = "EQ",
+  EQ = "EQ",
   -- FAT_ARROW = "FAT_ARROW",
   -- THIN_ARROW = "THIN_ARROW",
 
@@ -57,7 +57,7 @@ M.types = {
 }
 
 function M.new(type, value, line, col)
-  assert(M.types[type], "invalid token type: " .. tostring(type))
+  assert(M.types[type], "invalid token type: " .. tostring(type) .. ", value: " .. tostring(value))
 
   return {
     type = type,
