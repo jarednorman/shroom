@@ -8,13 +8,53 @@ local function compile(source)
   return generate(ast)
 end
 
-local function run(source)
-  print("input:  " .. source)
-  print("output: " .. compile(source))
-  print("---")
+local function read_file(path)
+  local f, err = io.open(path, "r")
+  if not f then
+    io.stderr:write("shroom: cannot open " .. path .. ": " .. err .. "\n")
+    os.exit(1)
+  end
+  local source = f:read("*a")
+  f:close()
+  return source
 end
 
-run("let x = 1")
-run("let x = 1 + 2")
-run("let x = 1 + 2 + 3")
-run("let x = 1 + y")
+local function write_file(path, contents)
+  local f, err = io.open(path, "w")
+  if not f then
+    io.stderr:write("shroom: cannot write " .. path .. ": " .. err .. "\n")
+    os.exit(1)
+  end
+  f:write(contents)
+  f:close()
+end
+
+
+local function output_path_for(input_path)
+  -- foo.shr  -> foo.shr.lua
+  local base, ext = input_path:match("^(.*)%.(.*)$")
+
+  if not base then
+    io.stderr:write("shroom: input file must have an extension\n")
+    os.exit(1)
+  end
+
+  return base .. "." .. ext .. ".lua"
+end
+
+
+local function main()
+  if #arg ~= 1 then
+    io.stderr:write("usage: lua shroom.lua <file.shr>\n")
+    os.exit(1)
+  end
+
+  local input_path = arg[1]
+  local source = read_file(input_path)
+  local lua_source = compile(source)
+  local output_path = output_path_for(input_path)
+  write_file(output_path, lua_source .. "\n")
+  print("compiled " .. input_path .. " -> " .. output_path)
+end
+
+main()
