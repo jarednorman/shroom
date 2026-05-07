@@ -6,6 +6,8 @@ M.tags = {
   Ident = "Ident",
   LetBinding = "LetBinding",
   Program = "Program",
+  Call = "Call",
+  ExprStmt = "ExprStmt",
 }
 
 function M.IntLit(value, line, col)
@@ -51,6 +53,25 @@ function M.Program(statements, line, col)
   return {
     tag = M.tags.Program,
     statements = statements,
+    line = line,
+    col = col,
+  }
+end
+
+function M.Call(callee, args, line, col)
+  return {
+    tag = M.tags.Call,
+    callee = callee,
+    args = args,
+    line = line,
+    col = col,
+  }
+end
+
+function M.ExprStmt(expr, line, col)
+  return {
+    tag = M.tags.ExprStmt,
+    expr = expr,
     line = line,
     col = col,
   }

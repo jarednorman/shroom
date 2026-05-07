@@ -125,6 +125,21 @@ function Lexer:next_token()
     return Tokens.new(Tokens.types.EQ, nil, self.line, self.col - 1)
   end
 
+  if c == "(" then
+    self:advance()
+    return Tokens.new(Tokens.types.LPAREN, nil, self.line, self.col - 1)
+  end
+
+  if c == ")" then
+    self:advance()
+    return Tokens.new(Tokens.types.RPAREN, nil, self.line, self.col - 1)
+  end
+
+  if c == "," then
+    self:advance()
+    return Tokens.new(Tokens.types.COMMA, nil, self.line, self.col - 1)
+  end
+
   if c:match("[%a_]") then
     return self:read_ident_or_keyword()
   end

@@ -23,7 +23,20 @@ local emitters = {
     end
 
     return table.concat(lines, "\n")
-  end
+  end,
+  ["Call"] = function(node)
+    local callee = emit(node.callee)
+    local args = {}
+
+    for _, arg in ipairs(node.args) do
+      table.insert(args, emit(arg))
+    end
+
+    return callee .. "(" .. table.concat(args, ", ") .. ")"
+  end,
+  ["ExprStmt"] = function(node)
+    return emit(node.expr)
+  end,
 }
 
 emit = function(node)

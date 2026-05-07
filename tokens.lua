@@ -41,13 +41,13 @@ M.types = {
   -- THIN_ARROW = "THIN_ARROW",
 
   -- Delimiters
-  -- LPAREN = "LPAREN",
-  -- RPAREN = "RPAREN",
+  LPAREN = "LPAREN",
+  RPAREN = "RPAREN",
   -- LBRACE = "LBRACE",
   -- RBRACE = "RBRACE",
   -- LBRACKET = "LBRACKET",
   -- RBRACKET = "RBRACKET",
-  -- COMMA = "COMMA",
+  COMMA = "COMMA",
   -- COLON = "COLON",
   -- SEMICOLON = "SEMICOLON",
 

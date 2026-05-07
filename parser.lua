@@ -71,8 +71,7 @@ function Parser:parse_statement()
     return self:parse_let()
   end
 
-  error(string.format("unexpected token %s at line %d, col %d",
-                      self:peek().type, self:peek().line, self:peek().col))
+  return self:parse_expression_statement()
 end
 
 function Parser:parse_let()
@@ -85,6 +84,11 @@ function Parser:parse_let()
   local value = self:parse_expression()
 
   return Ast.LetBinding(name_token.value, value, let_token.line, let_token.col)
+end
+
+function Parser:parse_expression_statement()
+  local expression = self:parse_expression()
+  return Ast.ExprStmt(expression, expression.line, expression.col)
 end
 
 local PRECEDENCE = {
@@ -101,7 +105,7 @@ end
 function Parser:parse_expression(min_precedence)
   min_precedence = min_precedence or 0
 
-  local left = self:parse_primary()
+  local left = self:parse_postfix()
 
   while true do
     local token = self:peek()
@@ -136,6 +140,39 @@ function Parser:parse_primary()
 
   error(string.format("unexpected token %s at line %d, col %d",
                       t.type, t.line, t.col))
+end
+
+function Parser:parse_postfix()
+  local expression = self:parse_primary()
+
+  while true do
+    if self:check(Tokens.types.LPAREN) then
+      expression = self:parse_call(expression)
+    else
+      break
+    end
+  end
+
+  return expression
+end
+
+function Parser:parse_call(callee)
+  local lparen = self:expect(Tokens.types.LPAREN)
+
+  local args = {}
+
+  if not self:check(Tokens.types.RPAREN) then
+    table.insert(args, self:parse_expression())
+
+    while self:match(Tokens.types.COMMA) do
+      self:skip_newlines()
+      table.insert(args, self:parse_expression())
+    end
+  end
+  self:skip_newlines()
+  self:expect(Tokens.types.RPAREN)
+
+  return Ast.Call(callee, args, callee.line, callee.col)
 end
 
 return Parser
