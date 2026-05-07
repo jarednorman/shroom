@@ -64,6 +64,8 @@ local KEYWORDS = {
   ["true"] = Tokens.types.TRUE,
   ["false"] = Tokens.types.FALSE,
   ["not"] = Tokens.types.NOT,
+  ["and"] = Tokens.types.AND,
+  ["or"] = Tokens.types.OR,
   -- FIXME: Add more keywords.
 }
 

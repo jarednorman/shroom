@@ -92,6 +92,8 @@ function Parser:parse_expression_statement()
 end
 
 local PRECEDENCE = {
+  [Tokens.types.OR]    = 3,
+  [Tokens.types.AND]   = 4,
   [Tokens.types.PLUS]  = 10,
   [Tokens.types.MINUS] = 10,
   [Tokens.types.STAR]  = 20,

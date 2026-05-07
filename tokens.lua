@@ -16,8 +16,8 @@ M.types = {
   -- TYPE = "TYPE",
   TRUE = "TRUE",
   FALSE = "FALSE",
-  -- AND = "AND",
-  -- OR = "OR",
+  AND = "AND",
+  OR = "OR",
   NOT = "NOT",
 
   -- Operators
@@ -57,10 +57,12 @@ M.types = {
 }
 
 M.operators = {
-  [M.types.PLUS] = "+",
+  [M.types.PLUS]  = "+",
   [M.types.MINUS] = "-",
-  [M.types.STAR] = "*",
+  [M.types.STAR]  = "*",
   [M.types.SLASH] = "/",
+  [M.types.OR]    = "or",
+  [M.types.AND]   = "and",
 }
 
 function M.new(type, value, line, col)
