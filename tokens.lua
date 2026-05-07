@@ -30,12 +30,12 @@ M.types = {
   -- MINUS_DOT = "MINUS_DOT",
   -- STAR_DOT = "STAR_DOT",
   -- SLASH_DOT = "SLASH_DOT",
-  -- EQ_EQ = "EQ_EQ",
-  -- BANG_EQ = "BANG_EQ",
-  -- LT = "LT",
-  -- LT_EQ = "LT_EQ",
-  -- GT = "GT",
-  -- GT_EQ = "GT_EQ",
+  EQ_EQ = "EQ_EQ",
+  BANG_EQ = "BANG_EQ",
+  LT = "LT",
+  LT_EQ = "LT_EQ",
+  GT = "GT",
+  GT_EQ = "GT_EQ",
   EQ = "EQ",
   -- FAT_ARROW = "FAT_ARROW",
   -- THIN_ARROW = "THIN_ARROW",
@@ -57,12 +57,18 @@ M.types = {
 }
 
 M.operators = {
-  [M.types.PLUS]  = "+",
-  [M.types.MINUS] = "-",
-  [M.types.STAR]  = "*",
-  [M.types.SLASH] = "/",
-  [M.types.OR]    = "or",
-  [M.types.AND]   = "and",
+  [M.types.PLUS]    = "+",
+  [M.types.MINUS]   = "-",
+  [M.types.STAR]    = "*",
+  [M.types.SLASH]   = "/",
+  [M.types.OR]      = "or",
+  [M.types.AND]     = "and",
+  [M.types.EQ_EQ]   = "==",
+  [M.types.BANG_EQ] = "!=",
+  [M.types.LT]      = "<",
+  [M.types.LT_EQ]   = "<=",
+  [M.types.GT]      = ">",
+  [M.types.GT_EQ]   = ">=",
 }
 
 function M.new(type, value, line, col)

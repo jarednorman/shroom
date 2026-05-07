@@ -92,12 +92,18 @@ function Parser:parse_expression_statement()
 end
 
 local PRECEDENCE = {
-  [Tokens.types.OR]    = 3,
-  [Tokens.types.AND]   = 4,
-  [Tokens.types.PLUS]  = 10,
-  [Tokens.types.MINUS] = 10,
-  [Tokens.types.STAR]  = 20,
-  [Tokens.types.SLASH] = 20,
+  [Tokens.types.OR]      = 3,
+  [Tokens.types.AND]     = 4,
+  [Tokens.types.EQ_EQ]   = 5,
+  [Tokens.types.BANG_EQ] = 5,
+  [Tokens.types.LT]      = 5,
+  [Tokens.types.LT_EQ]   = 5,
+  [Tokens.types.GT]      = 5,
+  [Tokens.types.GT_EQ]   = 5,
+  [Tokens.types.PLUS]    = 10,
+  [Tokens.types.MINUS]   = 10,
+  [Tokens.types.STAR]    = 20,
+  [Tokens.types.SLASH]   = 20,
 }
 
 local function precedence_of(token)

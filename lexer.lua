@@ -16,9 +16,10 @@ function Lexer:at_end()
   return self.pos > #self.source
 end
 
-function Lexer:peek()
-  if self:at_end() then return nil end
-  return self.source:sub(self.pos, self.pos)
+function Lexer:peek(offset)
+  offset = offset or 0
+
+  return self.source:sub(self.pos + offset, self.pos + offset)
 end
 
 function Lexer:advance()
@@ -130,7 +131,47 @@ function Lexer:next_token()
 
   if c == "=" then
     self:advance()
+
+    if self:peek() == "=" then
+      self:advance()
+      return Tokens.new(Tokens.types.EQ_EQ, nil, self.line, self.col - 2)
+    end
+
     return Tokens.new(Tokens.types.EQ, nil, self.line, self.col - 1)
+  end
+
+  if c == "!" then
+    self:advance()
+
+    if self:peek() == "=" then
+      self:advance()
+      return Tokens.new(Tokens.types.BANG_EQ, nil, self.line, self.col - 2)
+    end
+
+    error(string.format("unexpected character '!' at line %d, col %d",
+                        self.line, self.col - 1))
+  end
+
+  if c == "<" then
+    self:advance()
+
+    if self:peek() == "=" then
+      self:advance()
+      return Tokens.new(Tokens.types.LT_EQ, nil, self.line, self.col - 2)
+    end
+
+    return Tokens.new(Tokens.types.LT, nil, self.line, self.col - 1)
+  end
+
+  if c == ">" then
+    self:advance()
+
+    if self:peek() == "=" then
+      self:advance()
+      return Tokens.new(Tokens.types.GT_EQ, nil, self.line, self.col - 2)
+    end
+
+    return Tokens.new(Tokens.types.GT, nil, self.line, self.col - 1)
   end
 
   if c == "(" then

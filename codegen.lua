@@ -12,6 +12,11 @@ local function append_all(target, source)
   for _, s in ipairs(source) do table.insert(target, s) end
 end
 
+-- Operators that differ from their Lua equivalents.
+local LUA_OP = {
+  ["!="] = "~=",
+}
+
 local emit_expr
 local emit_stmt
 
@@ -41,12 +46,13 @@ local expr_emitters = {
   end,
 
   ["BinOp"] = function(node)
+    local op = LUA_OP[node.op] or node.op
     local left_stmts, left_expr = emit_expr(node.left)
     local right_stmts, right_expr = emit_expr(node.right)
     local stmts = {}
     append_all(stmts, left_stmts)
     append_all(stmts, right_stmts)
-    return stmts, "(" .. left_expr .. " " .. node.op .. " " .. right_expr .. ")"
+    return stmts, "(" .. left_expr .. " " .. op .. " " .. right_expr .. ")"
   end,
 
   ["Call"] = function(node)
