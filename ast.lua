@@ -11,6 +11,7 @@ M.tags = {
   If = "If",
   Block = "Block",
   BoolLit = "BoolLit",
+  UnaryOp = "UnaryOp",
 }
 
 function M.IntLit(value, line, col)
@@ -105,6 +106,16 @@ function M.BoolLit(value, line, col)
   return {
     tag = M.tags.BoolLit,
     value = value,
+    line = line,
+    col = col,
+  }
+end
+
+function M.UnaryOp(op, operand, line, col)
+  return {
+    tag = M.tags.UnaryOp,
+    op = op,
+    operand = operand,
     line = line,
     col = col,
   }

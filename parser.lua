@@ -105,7 +105,7 @@ end
 function Parser:parse_expression(min_precedence)
   min_precedence = min_precedence or 0
 
-  local left = self:parse_postfix()
+  local left = self:parse_prefix()
 
   while true do
     local token = self:peek()
@@ -213,6 +213,18 @@ function Parser:parse_block()
 
   self:expect(Tokens.types.RBRACE)
   return Ast.Block(statements, result, lbrace.line, lbrace.col)
+end
+
+function Parser:parse_prefix()
+  local t = self:peek()
+
+  if t.type == Tokens.types.NOT then
+    self:advance()
+    local operand = self:parse_prefix()
+    return Ast.UnaryOp("not", operand, t.line, t.col)
+  end
+
+  return self:parse_postfix()
 end
 
 function Parser:parse_postfix()

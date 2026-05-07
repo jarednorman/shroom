@@ -18,7 +18,7 @@ M.types = {
   FALSE = "FALSE",
   -- AND = "AND",
   -- OR = "OR",
-  -- NOT = "NOT",
+  NOT = "NOT",
 
   -- Operators
   PLUS = "PLUS",

@@ -96,6 +96,11 @@ local expr_emitters = {
   ["BoolLit"] = function(node)
     return {}, tostring(node.value)
   end,
+
+  ["UnaryOp"] = function(node)
+    local stmts, expr = emit_expr(node.operand)
+    return stmts, "(" .. node.op .. " " .. expr .. ")"
+  end
 }
 
 local stmt_emitters = {
