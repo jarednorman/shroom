@@ -91,7 +91,11 @@ local expr_emitters = {
 
     table.insert(stmts, "end")
     return stmts, tmp
-  end
+  end,
+
+  ["BoolLit"] = function(node)
+    return {}, tostring(node.value)
+  end,
 }
 
 local stmt_emitters = {

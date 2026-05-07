@@ -133,6 +133,16 @@ function Parser:parse_primary()
     return Ast.IntLit(t.value, t.line, t.col)
   end
 
+  if t.type == Tokens.types.TRUE then
+    self:advance()
+    return Ast.BoolLit(true, t.line, t.col)
+  end
+
+  if t.type == Tokens.types.FALSE then
+    self:advance()
+    return Ast.BoolLit(false, t.line, t.col)
+  end
+
   if t.type == Tokens.types.IDENT then
     self:advance()
     return Ast.Ident(t.value, t.line, t.col)

@@ -10,6 +10,7 @@ M.tags = {
   ExprStmt = "ExprStmt",
   If = "If",
   Block = "Block",
+  BoolLit = "BoolLit",
 }
 
 function M.IntLit(value, line, col)
@@ -95,6 +96,15 @@ function M.Block(statements, result, line, col)
     tag = M.tags.Block,
     statements = statements,
     result = result,
+    line = line,
+    col = col,
+  }
+end
+
+function M.BoolLit(value, line, col)
+  return {
+    tag = M.tags.BoolLit,
+    value = value,
     line = line,
     col = col,
   }
