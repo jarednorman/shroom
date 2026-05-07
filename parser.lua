@@ -138,6 +138,16 @@ function Parser:parse_primary()
     return Ast.Ident(t.value, t.line, t.col)
   end
 
+  if t.type == Tokens.types.LPAREN then
+    self:advance()
+    self:skip_newlines()
+    local expression = self:parse_expression()
+    self:skip_newlines()
+    self:expect(Tokens.types.RPAREN)
+
+    return expression
+  end
+
   error(string.format("unexpected token %s at line %d, col %d",
                       t.type, t.line, t.col))
 end
