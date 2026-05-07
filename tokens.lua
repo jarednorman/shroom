@@ -22,9 +22,9 @@ M.types = {
 
   -- Operators
   PLUS = "PLUS",
-  -- MINUS = "MINUS",
+  MINUS = "MINUS",
   STAR = "STAR",
-  -- SLASH = "SLASH",
+  SLASH = "SLASH",
   -- PERCENT = "PERCENT",
   -- PLUS_DOT = "PLUS_DOT",
   -- MINUS_DOT = "MINUS_DOT",
@@ -58,7 +58,9 @@ M.types = {
 
 M.operators = {
   [M.types.PLUS] = "+",
+  [M.types.MINUS] = "-",
   [M.types.STAR] = "*",
+  [M.types.SLASH] = "/",
 }
 
 function M.new(type, value, line, col)

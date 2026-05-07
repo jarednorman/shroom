@@ -89,7 +89,9 @@ end
 
 local PRECEDENCE = {
   [Tokens.types.PLUS]  = 10,
+  [Tokens.types.MINUS] = 10,
   [Tokens.types.STAR]  = 20,
+  [Tokens.types.SLASH] = 20,
 }
 
 local function precedence_of(token)
