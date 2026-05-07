@@ -8,6 +8,8 @@ M.tags = {
   Program = "Program",
   Call = "Call",
   ExprStmt = "ExprStmt",
+  If = "If",
+  Block = "Block",
 }
 
 function M.IntLit(value, line, col)
@@ -72,6 +74,27 @@ function M.ExprStmt(expr, line, col)
   return {
     tag = M.tags.ExprStmt,
     expr = expr,
+    line = line,
+    col = col,
+  }
+end
+
+function M.If(condition, then_block, else_block, line, col)
+  return {
+    tag = M.tags.If,
+    condition = condition,
+    then_block = then_block,
+    else_block = else_block,
+    line = line,
+    col = col,
+  }
+end
+
+function M.Block(statements, result, line, col)
+  return {
+    tag = M.tags.Block,
+    statements = statements,
+    result = result,
     line = line,
     col = col,
   }

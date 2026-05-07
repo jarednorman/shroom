@@ -59,6 +59,8 @@ end
 
 local KEYWORDS = {
   ["let"] = Tokens.types.LET,
+  ["if"] = Tokens.types.IF,
+  ["else"] = Tokens.types.ELSE,
   -- FIXME: Add more keywords.
 }
 
@@ -92,6 +94,7 @@ function Lexer:next_token()
   local c = self:peek()
 
   if c == "\n" then
+    local line, col = self.line, self.col
     self:advance()
     return Tokens.new(Tokens.types.NEWLINE, nil, line, col)
   end
@@ -140,12 +143,22 @@ function Lexer:next_token()
     return Tokens.new(Tokens.types.COMMA, nil, self.line, self.col - 1)
   end
 
+  if c == "{" then
+    self:advance()
+    return Tokens.new(Tokens.types.LBRACE, nil, self.line, self.col - 1)
+  end
+
+  if c == "}" then
+    self:advance()
+    return Tokens.new(Tokens.types.RBRACE, nil, self.line, self.col - 1)
+  end
+
   if c:match("[%a_]") then
     return self:read_ident_or_keyword()
   end
 
   error(string.format("unexpected character '%s' at line %d, col %d",
-                       c, self.line, self.col))
+    c, self.line, self.col))
 end
 
 function Lexer:tokenize()

@@ -148,8 +148,61 @@ function Parser:parse_primary()
     return expression
   end
 
+  if t.type == Tokens.types.IF then
+    return self:parse_if()
+  end
+
   error(string.format("unexpected token %s at line %d, col %d",
                       t.type, t.line, t.col))
+end
+
+function Parser:parse_if()
+  local if_token = self:expect(Tokens.types.IF)
+
+  self:skip_newlines()
+  local cond = self:parse_expression()
+
+  self:skip_newlines()
+  local then_block = self:parse_block()
+
+  self:skip_newlines()
+  local else_block = nil
+  if self:check(Tokens.types.ELSE) then
+    self:advance()
+    self:skip_newlines()
+    else_block = self:parse_block()
+  end
+
+  return Ast.If(cond, then_block, else_block, if_token.line, if_token.col)
+end
+
+function Parser:parse_block()
+  local lbrace = self:expect(Tokens.types.LBRACE)
+  self:skip_newlines()
+
+  local statements = {}
+  local result = nil
+
+  while not self:check(Tokens.types.RBRACE) and not self:check(Tokens.types.EOF) do
+    if self:check(Tokens.types.LET) then
+      table.insert(statements, self:parse_let())
+    else
+      local expr = self:parse_expression()
+      self:skip_newlines()
+      -- If the the expression parsed _is_ the last expression in the block, it
+      -- becomes the result of the block.
+      if self:check(Tokens.types.RBRACE) then
+        result = expr
+        break
+      else
+        table.insert(statements, Ast.ExprStmt(expr, expr.line, expr.col))
+      end
+      self:skip_newlines()
+    end
+  end
+
+  self:expect(Tokens.types.RBRACE)
+  return Ast.Block(statements, result, lbrace.line, lbrace.col)
 end
 
 function Parser:parse_postfix()

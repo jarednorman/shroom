@@ -10,8 +10,8 @@ M.types = {
 
   -- Keywords
   LET = "LET",
-  -- IF = "IF",
-  -- ELSE = "ELSE",
+  IF = "IF",
+  ELSE = "ELSE",
   -- MATCH = "MATCH",
   -- TYPE = "TYPE",
   -- TRUE = "TRUE",
@@ -43,8 +43,8 @@ M.types = {
   -- Delimiters
   LPAREN = "LPAREN",
   RPAREN = "RPAREN",
-  -- LBRACE = "LBRACE",
-  -- RBRACE = "RBRACE",
+  LBRACE = "LBRACE",
+  RBRACE = "RBRACE",
   -- LBRACKET = "LBRACKET",
   -- RBRACKET = "RBRACKET",
   COMMA = "COMMA",
