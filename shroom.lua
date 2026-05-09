@@ -1,10 +1,12 @@
 local Lexer = require("lexer")
 local Parser = require("parser")
+local check = require("checker")
 local generate = require("codegen")
 
 local function compile(source)
   local tokens = Lexer.new(source):tokenize()
   local ast = Parser.new(tokens):parse_program()
+  check(ast)
   return generate(ast)
 end
 
