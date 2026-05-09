@@ -3,11 +3,16 @@ local Parser = require("parser")
 local check = require("checker")
 local generate = require("codegen")
 
+local PRELUDE = [[
+local print_int = print
+local print_bool = print
+]]
+
 local function compile(source)
   local tokens = Lexer.new(source):tokenize()
   local ast = Parser.new(tokens):parse_program()
   check(ast)
-  return generate(ast)
+  return PRELUDE .. generate(ast)
 end
 
 local function read_file(path)

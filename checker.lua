@@ -7,10 +7,32 @@ local function type_error(node, msg)
 end
 
 local function types_equal(t1, t2)
-  return t1.tag == t2.tag
+  if t1.tag ~= t2.tag then return false end
+
+  if t1.tag == "Function" then
+    if #t1.params ~= #t2.params then return false end
+
+    for i = 1, #t1.params do
+      if not types_equal(t1.params[i], t2.params[i]) then return false end
+    end
+
+    return types_equal(t1.ret, t2.ret)
+  end
+
+  return true
 end
 
 local function type_to_string(t)
+  if t.tag == "Function" then
+    local params = {}
+
+    for _, p in ipairs(t.params) do
+      table.insert(params, type_to_string(p))
+    end
+
+    return "(" .. table.concat(params, ", ") .. ") -> " .. type_to_string(t.ret)
+  end
+
   return t.tag
 end
 
@@ -160,13 +182,29 @@ local expr_checkers = {
   end,
 
   ["Call"] = function(node, env)
-    -- This just checks the argument expressions work. We don't have the concept
-    -- of function types yet.
-    check_expr(node.callee, env)
-    for _, arg in ipairs(node.args) do
-      check_expr(arg, env)
+    local callee_t = check_expr(node.callee, env)
+
+    if callee_t.tag ~= "Function" then
+      type_error(node, "cannot call a non-function value of type " ..
+                  type_to_string(callee_t))
     end
-    return Types.Unit
+
+    if #node.args ~= #callee_t.params then
+      type_error(node, "expected " .. #callee_t.params ..
+                 " argument(s), got " .. #node.args)
+    end
+
+    for i, arg in ipairs(node.args) do
+      local arg_t = check_expr(arg, env)
+
+      if not types_equal(arg_t, callee_t.params[i]) then
+        type_error(node, "argument " .. i .. " expected " ..
+                   type_to_string(callee_t.params[i]) ..
+                   ", got " .. type_to_string(arg_t))
+      end
+    end
+
+    return callee_t.ret
   end
 }
 
@@ -206,8 +244,8 @@ end
 local check = function(program)
   local env = Env.new(nil)
 
-  -- We only know print exists. Nothing else.
-  env:define("print", Types.Unit)
+  env:define("print_int",  Types.Function({Types.Int},  Types.Unit))
+  env:define("print_bool", Types.Function({Types.Bool}, Types.Unit))
 
   check_stmt(program, env)
 end
