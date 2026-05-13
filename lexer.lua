@@ -116,6 +116,12 @@ function Lexer:next_token()
 
   if c == "-" then
     self:advance()
+
+    if self:peek() == ">" then
+      self:advance()
+      return Tokens.new(Tokens.types.THIN_ARROW, nil, self.line, self.col - 2)
+    end
+
     return Tokens.new(Tokens.types.MINUS, nil, self.line, self.col - 1)
   end
 

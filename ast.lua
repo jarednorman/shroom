@@ -12,6 +12,8 @@ M.tags = {
   Block = "Block",
   BoolLit = "BoolLit",
   UnaryOp = "UnaryOp",
+  TypeIdent = "TypeIdent",
+  TypeFunc = "TypeFunc"
 }
 
 function M.IntLit(value, line, col)
@@ -116,6 +118,25 @@ function M.UnaryOp(op, operand, line, col)
     tag = M.tags.UnaryOp,
     op = op,
     operand = operand,
+    line = line,
+    col = col,
+  }
+end
+
+function M.TypeIdent(name, line, col)
+  return {
+    tag = M.tags.TypeIdent,
+    name = name,
+    line = line,
+    col = col,
+  }
+end
+
+function M.TypeFunc(params, ret, line, col)
+  return {
+    tag = M.tags.TypeFunc,
+    params = params,
+    ret = ret,
     line = line,
     col = col,
   }

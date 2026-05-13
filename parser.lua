@@ -174,6 +174,63 @@ function Parser:parse_primary()
                       t.type, t.line, t.col))
 end
 
+function Parser:parse_paren_type()
+  local lparen = self:expect(Tokens.types.LPAREN)
+  self:skip_newlines()
+
+  local types = {}
+
+  if not self:check(Tokens.types.RPAREN) then
+    table.insert(types, self:parse_type_expr())
+
+    while self:match(Tokens.types.COMMA) do
+      self:skip_newlines()
+      table.insert(types, self:parse_type_expr())
+    end
+
+    self:skip_newlines()
+  end
+
+  self:expect(Tokens.types.RPAREN)
+
+  if self:check(Tokens.types.THIN_ARROW) then
+    self:advance()
+    self:skip_newlines()
+    local ret = self:parse_type_expr()
+    return Ast.TypeFunc(types, ret, lparen.line, lparen.col)
+  end
+
+  if #types == 0 then
+    error(string.format(
+      "expected '->' after empty parameter list at line %d, col %d",
+      lparen.line, lparen.col))
+  end
+
+  if #types > 1 then
+    error(string.format(
+      "unexpected ',' in type expression at line %d, col %d (did you mean '... -> T'?)",
+      lparen.line, lparen.col))
+  end
+
+  return types[1]
+end
+
+function Parser:parse_type_expr()
+  local t = self:peek()
+
+  if t.type == Tokens.types.IDENT then
+    self:advance()
+    return Ast.TypeIdent(t.value, t.line, t.col)
+  end
+
+  if t.type == Tokens.types.LPAREN then
+      return self:parse_paren_type()
+    end
+
+    error(string.format("expected type expression at line %d, col %d",
+                        t.line, t.col))
+end
+
 function Parser:parse_if()
   local if_token = self:expect(Tokens.types.IF)
 

@@ -38,7 +38,7 @@ M.types = {
   GT_EQ = "GT_EQ",
   EQ = "EQ",
   -- FAT_ARROW = "FAT_ARROW",
-  -- THIN_ARROW = "THIN_ARROW",
+  THIN_ARROW = "THIN_ARROW",
 
   -- Delimiters
   LPAREN = "LPAREN",
