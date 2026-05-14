@@ -37,7 +37,7 @@ M.types = {
   GT = "GT",
   GT_EQ = "GT_EQ",
   EQ = "EQ",
-  -- FAT_ARROW = "FAT_ARROW",
+  FAT_ARROW = "FAT_ARROW",
   THIN_ARROW = "THIN_ARROW",
 
   -- Delimiters
@@ -48,7 +48,7 @@ M.types = {
   -- LBRACKET = "LBRACKET",
   -- RBRACKET = "RBRACKET",
   COMMA = "COMMA",
-  -- COLON = "COLON",
+  COLON = "COLON",
   -- SEMICOLON = "SEMICOLON",
 
   -- Special

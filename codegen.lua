@@ -106,6 +106,26 @@ local expr_emitters = {
   ["UnaryOp"] = function(node)
     local stmts, expr = emit_expr(node.operand)
     return stmts, "(" .. node.op .. " " .. expr .. ")"
+  end,
+
+  ["Lambda"] = function(node)
+    local param_names = {}
+    for _, param in ipairs(node.params) do
+      table.insert(param_names, param.name)
+    end
+    local params_str = table.concat(param_names, ", ")
+
+    local body_stmts, body_expr = emit_expr(node.body)
+
+    local lines = {}
+    table.insert(lines, "function(" .. params_str .. ")")
+    for _, s in ipairs(body_stmts) do
+      table.insert(lines, "  " .. s)
+    end
+    table.insert(lines, "  return " .. body_expr)
+    table.insert(lines, "end")
+
+    return {}, table.concat(lines, "\n")
   end
 }
 

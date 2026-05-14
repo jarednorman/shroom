@@ -114,17 +114,6 @@ function Lexer:next_token()
     return Tokens.new(Tokens.types.PLUS, nil, self.line, self.col - 1)
   end
 
-  if c == "-" then
-    self:advance()
-
-    if self:peek() == ">" then
-      self:advance()
-      return Tokens.new(Tokens.types.THIN_ARROW, nil, self.line, self.col - 2)
-    end
-
-    return Tokens.new(Tokens.types.MINUS, nil, self.line, self.col - 1)
-  end
-
   if c == "*" then
     self:advance()
     return Tokens.new(Tokens.types.STAR, nil, self.line, self.col - 1)
@@ -143,7 +132,24 @@ function Lexer:next_token()
       return Tokens.new(Tokens.types.EQ_EQ, nil, self.line, self.col - 2)
     end
 
+    if self:peek() == ">" then
+      self:advance()
+      return Tokens.new(Tokens.types.FAT_ARROW, nil, self.line, self.col - 2)
+    end
+
     return Tokens.new(Tokens.types.EQ, nil, self.line, self.col - 1)
+  end
+
+
+  if c == "-" then
+    self:advance()
+
+    if self:peek() == ">" then
+      self:advance()
+      return Tokens.new(Tokens.types.THIN_ARROW, nil, self.line, self.col - 2)
+    end
+
+    return Tokens.new(Tokens.types.MINUS, nil, self.line, self.col - 1)
   end
 
   if c == "!" then
@@ -178,6 +184,11 @@ function Lexer:next_token()
     end
 
     return Tokens.new(Tokens.types.GT, nil, self.line, self.col - 1)
+  end
+
+  if c == ":" then
+    self:advance()
+    return Tokens.new(Tokens.types.COLON, nil, self.line, self.col - 1)
   end
 
   if c == "(" then

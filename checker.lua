@@ -36,6 +36,31 @@ local function type_to_string(t)
   return t.tag
 end
 
+local function resolve_type(node)
+  if node.tag == "TypeIdent" then
+    if node.name == "Int" then
+      return Types.Int
+    elseif node.name == "Bool" then
+      return Types.Bool
+    elseif node.name == "Unit" then
+      return Types.Unit
+    else
+      type_error(node, "unknown type: " .. node.name)
+    end
+  elseif node.tag == "TypeFunc" then
+    local params = {}
+
+    for _, param in ipairs(node.params) do
+      table.insert(params, resolve_type(param))
+    end
+
+    local ret = resolve_type(node.ret)
+    return Types.Function(params, ret)
+  else
+    error("resolve_type: unhandled type node " .. tostring(node.tag))
+  end
+end
+
 local function check_arith(node, left, right)
   if not types_equal(left, Types.Int) then
     type_error(node, "left operand of " .. node.op ..
@@ -205,6 +230,37 @@ local expr_checkers = {
     end
 
     return callee_t.ret
+  end,
+
+  ["Lambda"] = function(node, env)
+    local param_types = {}
+    for _, param in ipairs(node.params) do
+      if not param.type_expr then
+        type_error(param, "parameter '" .. param.name ..
+                    "' must have a type annotation")
+      end
+      table.insert(param_types, resolve_type(param.type_expr))
+    end
+
+    if not node.ret_type then
+      type_error(node, "function must have a return type annotation")
+    end
+    local ret_type = resolve_type(node.ret_type)
+
+    local body_env = env:child()
+    for i, param in ipairs(node.params) do
+      body_env:define(param.name, param_types[i])
+    end
+
+    local body_type = check_expr(node.body, body_env)
+    if not types_equal(body_type, ret_type) then
+      type_error(node, "function body has type " ..
+                 type_to_string(body_type) ..
+                 " but declared return type is " ..
+                 type_to_string(ret_type))
+    end
+
+    return Types.Function(param_types, ret_type)
   end
 }
 

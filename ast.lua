@@ -13,7 +13,9 @@ M.tags = {
   BoolLit = "BoolLit",
   UnaryOp = "UnaryOp",
   TypeIdent = "TypeIdent",
-  TypeFunc = "TypeFunc"
+  TypeFunc = "TypeFunc",
+  Lambda = "Lambda",
+  Param = "Param",
 }
 
 function M.IntLit(value, line, col)
@@ -137,6 +139,27 @@ function M.TypeFunc(params, ret, line, col)
     tag = M.tags.TypeFunc,
     params = params,
     ret = ret,
+    line = line,
+    col = col,
+  }
+end
+
+function M.Lambda(params, ret_type, body, line, col)
+  return {
+    tag = M.tags.Lambda,
+    params = params,
+    ret_type = ret_type,
+    body = body,
+    line = line,
+    col = col,
+  }
+end
+
+function M.Param(name, type_expr, line, col)
+  return {
+    tag = M.tags.Param,
+    name = name,
+    type_expr = type_expr,
     line = line,
     col = col,
   }

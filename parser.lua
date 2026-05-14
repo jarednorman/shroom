@@ -1,6 +1,16 @@
 local Tokens = require("tokens")
 local Ast = require("ast")
 
+local function make_item(line, col)
+  return {
+    line = line,
+    col = col,
+    name = nil,
+    type_expr = nil,
+    expr = nil
+  }
+end
+
 local Parser = {}
 Parser.__index = Parser
 
@@ -110,6 +120,114 @@ local function precedence_of(token)
   return PRECEDENCE[token.type] or 0
 end
 
+function Parser:finish_lambda(lparen, items)
+  local params = {}
+  for _, item in ipairs(items) do
+    if not item.name then
+      error(string.format(
+        "expected parameter name at line %d, col %d",
+        item.line, item.col))
+    end
+    if not item.type_expr then
+      error(string.format(
+        "parameter '%s' missing type annotation at line %d, col %d",
+        item.name, item.line, item.col))
+    end
+    table.insert(params, Ast.Param(item.name, item.type_expr, item.line, item.col))
+  end
+
+  local ret_type = nil
+  if self:check(Tokens.types.COLON) then
+    self:advance()
+    self:skip_newlines()
+    ret_type = self:parse_type_expr()
+  end
+
+  self:expect(Tokens.types.FAT_ARROW)
+  self:skip_newlines()
+
+  local body = self:parse_expression()
+
+  return Ast.Lambda(params, ret_type, body, lparen.line, lparen.col)
+end
+
+function Parser:parse_lambda_or_paren()
+  local lparen, items = self:parse_paren_group()
+
+  if self:check(Tokens.types.FAT_ARROW)
+    or self:check(Tokens.types.COLON) then
+    return self:finish_lambda(lparen, items)
+  end
+
+  if #items == 0 then
+    error(string.format("empty parentheses at line %d, col %d",
+                        lparen.line, lparen.col))
+  end
+
+  if #items > 1 then
+    error(string.format(
+      "unexpected ',' - multiple expressions in parentheses not allowed at line %d, col %d",
+      lparen.line, lparen.col))
+  end
+
+  local item = items[1]
+
+  if item.type_expr then
+    error(string.format(
+      "type annotation in expression context at line %d, col %d",
+      item.line, item.col))
+  end
+
+  return item.expr
+end
+
+function Parser:parse_paren_group()
+  local lparen = self:expect(Tokens.types.LPAREN)
+  self:skip_newlines()
+
+  local items = {}
+  if not self:check(Tokens.types.RPAREN) then
+    table.insert(items, self:parse_paren_item())
+
+    while self:match(Tokens.types.COMMA) do
+      self:skip_newlines()
+      table.insert(items, self:parse_paren_item())
+    end
+
+    self:skip_newlines()
+  end
+
+  self:expect(Tokens.types.RPAREN)
+  return lparen, items
+end
+
+function Parser:parse_paren_item()
+  local first = self:peek()
+  local item = make_item(first.line, first.col)
+
+  if first.type == Tokens.types.IDENT
+    and self.tokens[self.pos + 1]
+    and self.tokens[self.pos + 1].type == Tokens.types.COLON then
+    self:advance()
+    item.name = first.value
+    self:advance()
+    self:skip_newlines()
+
+    item.type_expr = self:parse_type_expr()
+
+    return item
+  end
+
+  local expr = self:parse_expression()
+  item.expr = expr
+
+  if expr.tag == "Ident" then
+    item.name = expr.name
+  end
+
+  return item
+end
+
 function Parser:parse_expression(min_precedence)
   min_precedence = min_precedence or 0
 
@@ -157,13 +275,11 @@ function Parser:parse_primary()
   end
 
   if t.type == Tokens.types.LPAREN then
-    self:advance()
-    self:skip_newlines()
-    local expression = self:parse_expression()
-    self:skip_newlines()
-    self:expect(Tokens.types.RPAREN)
+    return self:parse_lambda_or_paren()
+  end
 
-    return expression
+  if t.type == Tokens.types.LBRACE then
+    return self:parse_block()
   end
 
   if t.type == Tokens.types.IF then
