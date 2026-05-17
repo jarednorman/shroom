@@ -10,6 +10,7 @@ M.types = {
 
   -- Keywords
   LET = "LET",
+  REC = "REC",
   IF = "IF",
   ELSE = "ELSE",
   -- MATCH = "MATCH",

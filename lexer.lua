@@ -60,6 +60,7 @@ end
 
 local KEYWORDS = {
   ["let"] = Tokens.types.LET,
+  ["rec"] = Tokens.types.REC,
   ["if"] = Tokens.types.IF,
   ["else"] = Tokens.types.ELSE,
   ["true"] = Tokens.types.TRUE,

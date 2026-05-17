@@ -61,6 +61,25 @@ local function resolve_type(node)
   end
 end
 
+-- Type-check a lambda expression without checking its body.
+local function check_lambda_signature(node)
+  local param_types = {}
+  for _, param in ipairs(node.params) do
+    if not param.type_expr then
+      type_error(param, "parameter '" .. param.name ..
+                  "' must have a type annotation")
+    end
+    table.insert(param_types, resolve_type(param.type_expr))
+  end
+
+  if not node.ret_type then
+    type_error(node, "function must have a return type annotation")
+  end
+  local ret_type = resolve_type(node.ret_type)
+
+  return Types.Function(param_types, ret_type)
+end
+
 local function check_arith(node, left, right)
   if not types_equal(left, Types.Int) then
     type_error(node, "left operand of " .. node.op ..
@@ -233,41 +252,40 @@ local expr_checkers = {
   end,
 
   ["Lambda"] = function(node, env)
-    local param_types = {}
-    for _, param in ipairs(node.params) do
-      if not param.type_expr then
-        type_error(param, "parameter '" .. param.name ..
-                    "' must have a type annotation")
-      end
-      table.insert(param_types, resolve_type(param.type_expr))
-    end
-
-    if not node.ret_type then
-      type_error(node, "function must have a return type annotation")
-    end
-    local ret_type = resolve_type(node.ret_type)
+    local function_type = check_lambda_signature(node)
 
     local body_env = env:child()
+
     for i, param in ipairs(node.params) do
-      body_env:define(param.name, param_types[i])
+      body_env:define(param.name, function_type.params[i])
     end
 
     local body_type = check_expr(node.body, body_env)
-    if not types_equal(body_type, ret_type) then
+    if not types_equal(body_type, function_type.ret) then
       type_error(node, "function body has type " ..
                  type_to_string(body_type) ..
                  " but declared return type is " ..
-                 type_to_string(ret_type))
+                 type_to_string(function_type.ret))
     end
 
-    return Types.Function(param_types, ret_type)
+    return function_type
   end
 }
 
 local stmt_checkers = {
   ["LetBinding"] = function(node, env)
-    local t = check_expr(node.value, env)
-    env:define(node.name, t)
+    if not node.recursive then
+      local t = check_expr(node.value, env)
+      env:define(node.name, t)
+    elseif node.recursive and node.value.tag == "Lambda" then
+      local lambda_type = check_lambda_signature(node.value)
+
+      env:define(node.name, lambda_type)
+
+      check_expr(node.value, env)
+    else
+      type_error(node, "only functions can be recursive")
+    end
   end,
 
   ["ExprStmt"] = function(node, env)

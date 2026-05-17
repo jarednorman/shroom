@@ -86,6 +86,13 @@ end
 
 function Parser:parse_let()
   local let_token = self:expect(Tokens.types.LET)
+
+  local recursive = false
+  if self:check(Tokens.types.REC) then
+    self:advance()
+    recursive = true
+  end
+
   local name_token = self:expect(Tokens.types.IDENT)
 
   self:expect(Tokens.types.EQ)
@@ -93,7 +100,7 @@ function Parser:parse_let()
 
   local value = self:parse_expression()
 
-  return Ast.LetBinding(name_token.value, value, let_token.line, let_token.col)
+  return Ast.LetBinding(name_token.value, value, recursive, let_token.line, let_token.col)
 end
 
 function Parser:parse_expression_statement()

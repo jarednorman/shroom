@@ -136,7 +136,7 @@ local stmt_emitters = {
     local lines = {}
     append_all(lines, stmts)
 
-    if node.value.tag == "Lambda" then
+    if node.recursive then
       -- We need to forward-declare the variable in order support recursion.
       table.insert(lines, "local " .. node.name .. ";\n" .. node.name .. " = " .. expr)
     else

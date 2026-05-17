@@ -47,11 +47,12 @@ function M.Ident(name, line, col)
   }
 end
 
-function M.LetBinding(name, value, line, col)
+function M.LetBinding(name, value, recursive, line, col)
   return {
     tag = M.tags.LetBinding,
     name = name,
     value = value,
+    recursive = recursive,
     line = line,
     col = col,
   }
